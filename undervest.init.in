@@ -1,0 +1,71 @@
+#!/bin/sh
+#
+# undervest	This script starts and stops the undervest milter daemon
+#
+# chkconfig: 2345 71 40
+#
+# description: undervest is a daemon which hooks into sendmail and early
+#              rejects unknown recipients based on a fuzzy matching.
+# processname: undervest
+
+
+# Source function library.
+. @SYSCONFDIR@/rc.d/init.d/functions
+
+# Source networking configuration.
+. @SYSCONFDIR@/sysconfig/network
+
+# Local undervest configuration.
+UV_SOCKET=local:@RUNDIR@/undervest.sock
+UV_CONF=@SYSCONFDIR@/undervest.conf
+UV_EXTRA_FLAGS=
+[ -f @SYSCONFDIR@/sysconfig/undervest ] && . @SYSCONFDIR@/sysconfig/undervest
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+[ -x @SBINDIR@/undervest ] || exit 0
+PATH=$PATH:/usr/bin:/usr/local/bin
+
+# See how we were called.
+case "$1" in
+  start)
+        # Start daemon.
+        echo -n "Starting undervest: "
+        daemon @SBINDIR@/undervest -c ${UV_CONF} ${UV_EXTRA_FLAGS} ${UV_SOCKET}
+        RETVAL=$?
+        echo
+        ;;
+  stop)
+        # Stop daemons.
+        echo -n "Shutting down undervest: "
+        killproc undervest
+        RETVAL=$?
+        echo
+        ;;
+  reload)
+        # Stop daemons.
+        echo -n "Reloading undervest: "
+        killproc undervest -USR1
+        RETVAL=$?
+        echo
+        ;;
+  restart)
+        $0 stop
+        $0 start
+        ;;
+  condrestart)
+	if [ -f @LOCKDIR@/undervest ]
+	then	$0 stop
+		$0 start
+	fi
+	;;
+  status)
+        status undervest
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|reload|restart|condrestart|status}"
+        exit 1
+esac
+
+exit 0

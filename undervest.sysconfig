@@ -1,0 +1,21 @@
+#	Configuration file for the graymail milter.
+#
+#	Options:
+#	-d				Increase debug level.
+#	-e				Log to stderr only.
+#	-g <group or gid>		The group running the milter.
+#	-j <jail root directory>	Chroot to this before running.
+#	-l				Log to stderr too.
+#	-u <user or uid>		The user running the milter.
+#
+#UV_EXTRA_FLAGS="-u mail -g mail"
+
+
+#	Change configuration file.
+#
+#UV_CONF=/etc/undervest.conf
+
+
+#	Change socket name/location.
+#
+#UV_SOCKET=local:/var/run/undervest.sock

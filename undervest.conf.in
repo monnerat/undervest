@@ -1,0 +1,145 @@
+#	Sample configuration file for undervest.
+
+
+# List of paths where to search data loaders. Default: { @PKGLIBDIR@ }
+#loader-path = { /path/to/loaders/directory /other/path/to/loaders/directory }
+
+#	Loging options:
+#
+#log {
+#  Never log with a level inferior to this value. Log messages are not dropped
+#  but their level is raised to minlevel if needed. Possible values are
+#  emergency, alert, critical, error, warning, notice, information and debug.
+#  Default: debug
+#	minlevel = error
+#
+#  Likewise, never log with a level superior to this value. Default: emergency.
+#	maxlevel = error
+#}
+
+#	SMTP options:
+#
+#smtp {
+#  The SMTP status to return to mail client when a recipient is rejected.
+#  Default: 550.
+#	status = 551
+#
+#  The extended status to return to mail client when a recipient is rejected.
+#  Default: "5.5.1"
+#	extended-status = "5.5.0"
+#
+#  The textual message reported to the mail client when a recipient is rejected.
+#  Default: "No such recipient".
+#	message = "There's nobody here with this name"
+#}
+
+#	Mail domain descriptions:
+#  Several domain paragraphs may appear in the configuration. Each domain
+# must be named according to the corresponding mail domain. If no domain is
+# specified, domain "localhost" is implied.
+#  Note about local domain(s): since sendmail determines the validity of a local
+# address before calling the filter, the later will properly function only
+# if the sendmail configuration file defines LUSER_RELAY to some valid
+# address intended to receive all mail sent to an unknown recipient.
+# the filter will divert this handling whenever possible.
+# 
+#domain example.com {
+#  Enables/disables handling of this domain. Default: true
+#	enabled = no
+#
+#  Fix recipient address when there's no ambiguity with regard of the
+#  thresholds. Default: false
+#	autofix = yes
+#
+#  Refresh domain data every n seconds. If 0, data are never refreshed.
+#  Default: 0.
+#	refresh = 900
+#
+#  The first fuzzy matching algorithm applied is based on overlapping text
+#  slices call n-grams. This parameter allows to specify the maximum slice
+#  length. Default is 3.
+#	n-gram = 4
+#
+#  Thresholds options:
+#
+#	thresholds {
+#   Specifies a minimum matching weight for an n-gram fuzzy match to be
+#   considered as valid. The value must be positive and <= 1.0. Default: 0.8.
+#		n-gram = 0.85
+#
+#   Word matcher compares non-overlapping full alpha words, and count
+#   digits as a single word (to drastically lower scores of addresses with
+#   unmatching numerals). This parameter sets the minimum score for such a
+#   match to be taken into account. Default: 0.5.
+#		word = 0.6
+#	}
+#
+#  Sources:
+#
+#  For each domain, the filter must obtain the full list of valid recipient
+#  addresses. Each source section (i.e.: there can be more than one) describes
+#  a source of those addresses. If no source is given, sendmail sources
+#  for /etc/passwd and /etc/aliases are implied.
+#
+#	source {
+#   Enables/disables this source. Default: true
+#		enabled = no
+#
+#   Each source must specify a data loader: a module interfacing with the
+#   (possible remote) data provider. It is possible to specify a loader as
+#   an absolute path to a shared library, a relative (from the loader path
+#   directories) path or a name that will be used with the loader paths to
+#   build the shared library name. For now, only two loaders are provided:
+#   sendmail and ldap. The default is sendmail.
+#		loader = ldap
+#
+#   This parameter is passed to the loaded to locate the target data. It
+#   should be given as an URI, but a particular handler may restrict
+#   its form (i.e.: a file URI for sendmail and an ldap/ldaps URI for ldap).
+#   Note about ldap URIs: the bind dn and password may be given in the
+#   authority part of the URI; selected attributes MUST be specified and contain
+#   e-mail addresses or recipient names. Default: "".
+#		uri = 'ldap://binddn:password@ldap.example.com/dc=example,dc=com?mail?sub?(%7C(mail=*))'
+#}
+
+
+#	Examples:
+#
+# Local domain.
+#
+# Note that wildcard recipients are not processed.
+# See remark above about LUSER_RELAY.
+#
+#domain localhost {
+#	autofix = yes
+#	refresh = 300
+#	source {
+#		loader = sendmail
+#		uri = file:///etc/passwd
+#	}
+#	source {
+#		loader = sendmail
+#		uri = file:///etc/aliases
+#	}
+#}
+#
+#
+# M$ active directory.
+#
+# Sendmail is supposed to act as a relay to an exchange server.
+# Please note an ldap request may be limited on the number of results it can
+# return: if so, split a source into two or more and lower their result count
+# with more restrictive URIs.
+#
+#domain example.com {
+#	autofix = yes
+#	refresh = 900
+#	source {
+#		handler = ldap
+#		uri = 'ldap://ldapuser%40example.com:password@adc.example.com/dc=example,dc=com?proxyAddresses?sub?(proxyAddresses=smtp*)'
+#	}
+#	source {
+#		handler = ldap
+#		uri = 'ldap://ldapuser%40example.com:password@adc.example.com/dc=example,dc=com?mail?sub?(mail=*)'
+#	}
+#}

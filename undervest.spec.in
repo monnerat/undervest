@@ -1,0 +1,146 @@
+%global use_systemd	0
+%if 0%{?fedora} >= 16
+%global use_systemd	1
+%endif
+
+Name:		undervest
+Summary:	Recipient fuzzy matcher/fixer filter for sendmail
+Version:	@VERSION@
+Release:	1%{?dist}
+URL:		http://www.datasphere.ch/
+Source:		%{name}-%{version}.tar.gz
+License:	Datasphere
+Group:		System Environment/Daemons
+BuildRequires:	sendmail-devel
+BuildRequires:	libconfuse-devel
+BuildRequires:	openldap-devel
+%if %{use_systemd}
+BuildRequires:	systemd-units
+Requires(post):	systemd-units
+Requires(post):	systemd-sysv
+Requires(preun):	systemd-units
+Requires(postun):	systemd-units
+%endif
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+  This mail filter checks bad recipient addresses and attempt to fix them.
+If there is more than a single possible fuzzy match for a non-existent
+recipient, the bad address is accepted in order to let a mail administrator
+redispatch the mail. If no address can be approximated, it is rejected.
+
+
+#-------------------------------------------------------------------------------
+%prep
+#-------------------------------------------------------------------------------
+
+%setup -q
+
+
+#-------------------------------------------------------------------------------
+%build
+#-------------------------------------------------------------------------------
+
+%configure
+make %{?_smp_mflags}
+
+
+#-------------------------------------------------------------------------------
+%install
+#-------------------------------------------------------------------------------
+
+rm -rf "${RPM_BUILD_ROOT}"
+
+make DESTDIR="${RPM_BUILD_ROOT}" install
+
+rm -f "${RPM_BUILD_ROOT}%{_libdir}/%{name}"/*.la
+
+%if %{use_systemd}
+mkdir -p "${RPM_BUILD_ROOT}%{_unitdir}/"
+install -p -m 0644 %{name}.service "${RPM_BUILD_ROOT}%{_unitdir}/"
+%else
+mkdir -p "${RPM_BUILD_ROOT}/%{_initrddir}"
+install -p -m 755 %{name}.init "${RPM_BUILD_ROOT}/%{_initrddir}/%{name}"
+%endif
+
+mkdir -p "${RPM_BUILD_ROOT}/%{_sysconfdir}/sysconfig"
+install -p -m 644 %{name}.sysconfig					\
+		"${RPM_BUILD_ROOT}/%{_sysconfdir}/sysconfig/%{name}"
+
+
+#-------------------------------------------------------------------------------
+%clean
+#-------------------------------------------------------------------------------
+
+rm -rf "${RPM_BUILD_ROOT}"
+
+
+#-------------------------------------------------------------------------------
+%post
+#-------------------------------------------------------------------------------
+
+%if %{use_systemd}
+if [ "${1}" = 1 ]
+then	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+%else
+/sbin/chkconfig --add %{name}
+%endif
+
+
+#-------------------------------------------------------------------------------
+%preun
+#-------------------------------------------------------------------------------
+
+%if %{use_systemd}
+if [ "${1}" = 0 ]
+then	/bin/systemctl --no-reload disable %{name}.service >/dev/null 2>&1 || :
+	/bin/systemctl stop %{name}.service >/dev/null 2>&1 || :
+fi
+%else
+if [ "${1}" = 0 ]
+then	/sbin/service %{name} stop > /dev/null 2>&1 || :
+	/sbin/chkconfig --del %{name}
+fi
+%endif
+
+
+#-------------------------------------------------------------------------------
+%postun
+#-------------------------------------------------------------------------------
+
+%if %{use_systemd}
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "${1}" != 0 ]
+then	/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
+fi
+%else
+if [ "${1}" != 0 ]
+then	/sbin/service %{name} condrestart > /dev/null 2>&1 || :
+fi
+%endif
+
+
+#-------------------------------------------------------------------------------
+%files
+#-------------------------------------------------------------------------------
+
+%defattr(-, root, root, -)
+%doc AUTHORS ChangeLog COPYING NEWS README
+%{_sbindir}/*
+%{_libdir}/*
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
+%config(noreplace) %attr(0640, root, mail) %{_sysconfdir}/%{name}.conf
+%if %{use_systemd}
+%{_unitdir}/*
+%else
+%{_initrddir}/*
+%endif
+
+
+#-------------------------------------------------------------------------------
+%changelog
+#-------------------------------------------------------------------------------
+
+* Tue Feb 25 2014 Patrick Monnerat <pm@datasphere.ch> 0.1.0-1
+- Initial rpm packaging.

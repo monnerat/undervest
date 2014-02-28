@@ -1,0 +1,129 @@
+#ifndef __CDLFCN__
+#define __CDLFCN__
+
+#include <unistd.h>
+#include <dlfcn.h>
+
+#include <stdexcept>
+
+
+namespace std {
+
+using ::dlopen;
+using ::dlsym;
+using ::dlclose;
+using ::dlerror;
+
+
+class dl {
+
+public:
+	dl(): handle(NULL) {};
+	dl(const string& name) { open(name); };
+	dl(const dl& s): handle(NULL) { if (s.handle) open(s.filename); };
+
+	dl(dl&& s): handle(s.handle), filename(s.filename)
+	{
+		if (&s != this)
+			s.handle = NULL;
+	}
+
+	virtual ~dl() { close(); };
+
+	dl&
+	operator=(const string& name)
+	{
+		if (filename != name) {
+			close();
+			open(name);
+			}
+
+		return *this;
+	}
+
+	dl&
+	operator=(const dl& s)
+	{
+		if (&s != this && s.filename != filename) {
+			close();
+
+			if (s.handle)
+				open(s.filename);
+			}
+
+		return *this;
+	}
+
+	dl&
+	operator=(dl&& s)
+	{
+		if (&s != this) {
+			close();
+			handle = s.handle;
+			filename = s.filename;
+			s.handle = NULL;
+			}
+
+		return *this;
+	}
+
+	dl&
+	close()
+	{
+		if (handle) {
+			dlclose(handle);
+			handle = NULL;
+			filename = "";
+			}
+
+		return *this;
+	}
+
+	dl&
+	open(const string& name, int flag = RTLD_NOW)
+	{
+		if (handle)
+			throw runtime_error("dl object already open");
+
+		handle = dlopen(name.data(), flag);
+
+		if (!handle)
+			throw runtime_error(dlerror());
+
+		filename = name;
+		return *this;
+	}
+
+	template<typename T>
+	dl&
+	symbol(T& ptr, const string& symbolname)
+	{
+		if (!handle)
+			throw runtime_error("dl object not open");
+
+		ptr = (T) dlsym(handle, symbolname.data());
+
+		if (!ptr)
+			throw runtime_error(dlerror());
+
+		return *this;
+	}
+
+	template<typename T>
+	dl&
+	symbol(T& ptr, const char * symbolname)
+	{
+		return symbol(ptr, string(symbolname));
+	}
+
+	string name() { return filename; };
+	bool is_open() { return !!handle; };
+
+private:
+	void *		handle;
+	string		filename;
+};
+
+}
+
+#endif
