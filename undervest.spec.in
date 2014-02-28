@@ -126,7 +126,7 @@ fi
 #-------------------------------------------------------------------------------
 
 %defattr(-, root, root, -)
-%doc AUTHORS ChangeLog COPYING NEWS README
+%doc AUTHORS
 %{_sbindir}/*
 %{_libdir}/*
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}

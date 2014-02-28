@@ -15,6 +15,8 @@
 #
 #*******************************************************************************
 
+AUTOMAKE_OPTIONS =	foreign
+
 SUFFIXES	=	.conf .conf.in .service .service.in .init .init.in
 
 SUBDIRS		=	src include
