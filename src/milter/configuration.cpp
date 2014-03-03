@@ -90,7 +90,7 @@ static cfg_opt_t	domain_opts[] = {
 static cfg_opt_t	smtp_opts[] = {
 	CFG_INT((char *) "status", 550, CFGF_NONE),
 	CFG_STR((char *) "extended-status", (char *) "5.1.1", CFGF_NONE),
-	CFG_STR((char *) "message", (char *) "No such recipient", CFGF_NONE),
+	CFG_STR((char *) "message", (char *) "User unknown", CFGF_NONE),
 	CFG_END()
 };
 

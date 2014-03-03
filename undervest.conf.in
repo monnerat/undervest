@@ -29,12 +29,12 @@
 #	extended-status = "5.5.0"
 #
 #  The textual message reported to the mail client when a recipient is rejected.
-#  Default: "No such recipient".
+#  Default: "User unknown".
 #	message = "There's nobody here with this name"
 #}
 
 #	Mail domain descriptions:
-#  Several domain paragraphs may appear in the configuration. Each domain
+#  Several domain sections may appear in the configuration. Each domain
 # must be named according to the corresponding mail domain. If no domain is
 # specified, domain "localhost" is implied.
 #  Note about local domain(s): since sendmail determines the validity of a local
@@ -93,7 +93,7 @@
 #   sendmail and ldap. The default is sendmail.
 #		loader = ldap
 #
-#   This parameter is passed to the loaded to locate the target data. It
+#   This parameter is passed to the loader to locate the target data. It
 #   should be given as an URI, but a particular handler may restrict
 #   its form (i.e.: a file URI for sendmail and an ldap/ldaps URI for ldap).
 #   Note about ldap URIs: the bind dn and password may be given in the
