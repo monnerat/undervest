@@ -129,6 +129,7 @@ fi
 %doc AUTHORS
 %{_sbindir}/*
 %{_libdir}/*
+%doc %{_mandir}/*/*
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %config(noreplace) %attr(0640, root, mail) %{_sysconfdir}/%{name}.conf
 %if %{use_systemd}

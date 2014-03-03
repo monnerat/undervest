@@ -1,0 +1,147 @@
+.TH undervest 8 "Feb 28, 2014"
+.SH NAME
+undervest \- A sendmail filter to check and/or fix e-mail recipient addresses.
+.SH SYNOPSIS
+.B undervest
+.RB [ \-d\  ...]
+.RB [ \-e ]
+.RB [ \-l ]
+.RB [ \-n ]
+.RB [ \-c\ \fIconfiguration_file\fP ]
+.RB [ \-u\ \fIuser\fP ]
+.RB [ \-g\ \fIgroup\fP ]
+.RB [ \-j\ \fIjail_directory\fP ]
+.RB \fIsocket\fP
+.SH DESCRIPTION
+Undervest is a milter capable of checking e-mail recipient addresses against
+local or remote valid address lists, and even fix address misspelling in some
+cases.
+.P
+These functions are particularly useful when:
+.IP "-" 2em
+MTA is used as a relay for a domain whose recipients are unknown.
+.IP "-" 2em
+Some error-tolerant routing is desired, even for local domains.
+.IP "-" 2em
+A local user relay address is provided to capture mail to unknown
+users, but some level of filtering is desired.
+.P
+To perform this filtering, undervest should obtain the full recipient address
+list for the filtered domain. Listing all possible address sources for a domain
+is under the responsibility of the configurator. Failure to this will surely
+cause rejection of valid addresses.
+.SS "Domain address loaders"
+These are external plugins responsible to obtain the valid address list for
+a particular domain.
+.P
+At the time of this writing, there are two loaders:
+.IP sendmail 10em
+This loader reads a file, seeking for lines begining with a recipient name
+or target domain's e-mail address followed by a colon (\fB:\fR). Invalid
+lines are ignored.
+This loader is mainly designed to get local addresses from /etc/passwd and
+/etc/aliases. It is not possible to process addresses with wildcards.
+.IP ldap 10em
+LDAP servers can be queried for recipient addresses using this loader. LDAP
+attributes containing addresses must be listed in the URI (see configuration).
+Since address loading should be fast, network accesses time-out after 5 seconds.
+Care must be taken when configuring undervest not to select too many
+results at a time: respect LDAP server limit. Beware also of LDAP referrals that
+may possibly cause a connection to an alternate unreachable server.
+If an attribute returned by LDAP server begins with (case-insensitive)
+"\fBsmtp:\fR", this prefix is stripped-off before testing if the attribute
+content is a valid e-mail address.
+.SS Matchers
+The first matcher is based on overlapping recipient name slices of maximum
+length \fIn\fR called \fBn-grams\fR. In example: "john.doe" is made of the 6
+n-grams "joh", "ohn", "hn.", "n.d", ".do" and "doe" for n = 3.
+.P
+A score is assigned to a possible match as: (2 * matching slice count) /
+(target string slice count + test string slice count). If the score is lower
+that the configured threshold, the n-gram match is discarded and the
+word matcher is invoked.
+.P
+The word matcher slices the recipient names into:
+.IP "-" 2em
+Longest possible alpha substrings that match themselves.
+.IP "-" 2em
+Single decimal digits that match nothing.
+.P
+Other characters are considered as delimiters and do not generate slices.
+.P
+The same formula as for the n-gram matcher is then is applied to determine
+the word matching score.
+.P
+The set of possible matches determines the fate of the recipient e-mail address:
+.IP "-" 2em
+There is a perfect match: the address is accepted.
+.IP "-" 2em
+No match has been found, the address is rejected.
+.IP "-" 2em
+There is more than one possible match: the address is accepted as given,
+expecting it to fall into a mailbox where a human operator may reroute it.
+.IP "-" 2em
+A single match has been found: depending on the configuration, the
+original address is accepted (see above) or it is replaced by the
+guessed address.
+.SS "Local domains"
+E-mail addresses in local domains may be flagged as invalid by sendmail before
+undervest is called: in this case, there is no way for the filter to reroute a
+(slightly) bad address to a valid one. The only way to overcome this problem
+is to define an LUSER_RELAY in sendmail's configuration: the LUSER_RELAY address
+can be any valid address or a bit-bucket address to automatically ignore
+e-mails not rerouted by undervest.
+.SS "Sendmail configuration"
+In /etc/sendmail.mc, set:
+.P
+define(`_FFR_MILTER', `1')dnl
+.br
+INPUT_MAIL_FILTER(`undervest', `S=\fBsocket\fR, F=, T=S:4m;;R:4m')dnl
+.br
+define(`confINPUT_MAIL_FILTERS', `...,undervest,...')dnl
+.SH OPTIONS
+.TP
+\fB-d\fR
+Increase the debug level. This option can be specified more than once to obtain
+the desired debug level.
+.TP
+\fB-e\fR
+Redirect all logging to the error output. Syslog is disabled.
+.TP
+\fB-l\fR
+Log via syslog and error output.
+.TP
+\fB-n\fR
+Do not daemonize: process is not detached, lock file and pid file are not
+handled.
+.TP
+\fB-c\fR \fIconfiguration_file\fR
+Specify the configuration file name. The default is /etc/undervest.conf.
+.TP
+\fB-u\fR \fIuser\fR
+Specify the user name or uid of the running process. The group will also be
+set to the default group for that user.
+Default running user is inherited from the launching process.
+.TP
+\fB-g\fR \fIgroup\fR
+Specify the group name or gid of the running process. If used with \fB-i\fR,
+the former should appear after the later on the command line.
+Default running group is inherited from the launching process.
+.TP
+\fB-j\fR \fIjail_directory\fR
+Change root directory of the process. It is the responsibility of the
+configurator to have all needed files accessible when the process is jailed.
+Default is to not change root.
+.TP
+\fBsocket\fR
+This mandatory parameter specifies the socket to use to communicate with
+sendmail. See sendmail documentation for the socket's name syntax.
+.P
+Note that a subset of these options can be tuned for invocation by the system in
+/etc/sysconfig/undervest.
+.SH FILES
+/etc/undervest.conf, /etc/sysconfig/undervest.
+.SH AUTHORS
+Patrick Monnerat <pm@datasphere.ch>, DATASPHERE S.A.
+.SH "SEE ALSO"
+undervest.conf(5)

@@ -147,6 +147,7 @@ dnl	Output target files.
 AC_CONFIG_FILES([
 	Makefile
 	undervest.spec
+	docs/Makefile
 	include/Makefile
 	src/Makefile
 	src/milter/Makefile

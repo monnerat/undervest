@@ -1,0 +1,150 @@
+.TH undervest.conf 5 "Feb 28, 2014"
+.SH NAME
+undervest.conf \- The configuration file for the undervest milter
+.SH SYNOPSIS
+The undervest.conf file is a configuration file for the undervest milter.
+The complete description of the file format and possible parameters held
+within are here for reference purposes.
+.SH "FILE FORMAT"
+The file consists of parameters and grouping sections. The formers can be
+strings, numbers or lists (a curly-bracket enclosed list of blank-separated
+values), they are expressed in the "variable = value" form.
+The laters consist in a section name possibly followed by an identifier, then
+a curly-bracket enclosed list of parameters and/or sub-sections.
+.P
+Comment lines denoted by a leading \fB#\fR are ignored.
+.P
+All parameters have a default value: thus an empty configuration file is valid.
+.P
+It is possible to include an external file using
+"\fBinclude(\fIfile_name\fB)\fR"
+anywhere a parameter or section name is expected. The content of the included
+file replaces the \fBinclude\fR directive and thus must match the
+expected directives at the level of inclusion.
+.SH "GLOBAL PARAMETERS"
+.IP "\fBloader-path\fR = {\fIpath_list\fR}"
+Define the directory paths where data loader plugins are loaded from.
+They are tried in order until a match is found.
+The default is the system's installation directory path.
+.SH "LOGGING OPTIONS"
+They are enclosed in a "log" section:
+.sp
+\fBlog\fR {
+.br
+	...
+.br
+}
+.IP "\fBminlevel\fR = \fIlog_level\fR"
+Sets the minimum level that can be used for logging: log messages with a lower
+level are not dropped but their level is raised to minlevel. Possible values are
+\fBemergency\fR, \fBalert\fR, \fBcritical\fR, \fBerror\fR, \fBwarning\fR,
+\fBnotice\fR, \fBinformation\fR and \fBdebug\fR.  Default is \fBdebug\fR.
+.IP "\fBmaxlevel\fR = \fIlog_level\fR"
+Similarly, limits the maximum logging level. Default: \fBemergency\fR.
+.SH "SMTP OPTIONS"
+They are enclosed in an "smtp" section:
+.sp
+\fBsmtp\fR {
+.br
+	...
+.br
+}
+.IP "\fBstatus\fR = \fIsmtp_status\fR"
+Sets the SMTP status value used to reject a recipient e-mail address. This
+should be a 3-digit decimal integer value, in conformance with the SMTP
+protocol. Default: 500.
+.IP "\fBextended-status\fR = \fIextended_status_string\fR"
+Sets the SMTP extended status returned when rejecting a recipient e-mail
+address. This should be a dot-separated string of 3 single decimal digits and
+conformant to the SMTP protocol. Default: "5.5.1".
+.IP "\fBmessage\fR = \fIstring\fR"
+Sets the SMTP message returned when rejecting a recipient e-mail
+address. Default is "User unknown".
+.SH "MAIL DOMAIN DESCRIPTIONS"
+Each of them consists in a labelled section enclosing specific definitions:
+.sp
+\fBdomain\fR "\fIdomain_name\fR" {
+.br
+	...
+.br
+}
+.P
+There can be several domain definitions in a configuration. If no domain
+section appears, the default is the single section \fBdomain "localhost" {}\fR.
+.IP "\fBenabled\fR = \fByes\fR|\fBno\fR"
+Enables/disables handling of the domain. Default: yes.
+.IP "\fBautofix\fR = \fByes\fR|\fBno\fR"
+Fixes an invalid recipient e-mail address when there's no ambiguity with
+regard of the thresholds. Default: no.
+.IP "\fBrefresh\fR = \fIseconds\fR"
+Refreshes domain data every \fIseconds\fR. If 0, data are never refreshed.
+Default: 0.
+.IP "\fBn-gram\fR = \fIn-gram_size\fR"
+The first fuzzy matching algorithm applied is based on overlapping text
+slices call n-grams. This parameter allows specifying the maximum slice
+length. Default is 3.
+.SH "THRESHOLD OPTIONS"
+They define the thresholds under which a fuzzy match is discarded. These options
+are enclosed within a domain's subsection:
+.sp
+\fBthresholds\fR {
+.br
+	...
+.br
+}
+.sp
+Each threshold must be given as a floating point value between 0.0 (always
+match) to 1.0 (full match only). As an exception, setting a value larger
+than 1.0 never matches: this can be used to disable an algorithm.
+.IP "\fBn-gram\fR = \fIthreshold\fR"
+Define the threshold value for the n-gram fuzzy matcher. Default: 0.8.
+.IP "\fBword\fR = \fIthreshold\fR"
+Define the threshold value for the word fuzzy matcher. Default: 0.5.
+.SH "SOURCE SUBSECTIONS"
+These are subsections of the \fBdomain\fR sections. They describe valid
+e-mail addresses sources and access.
+.sp
+\fBsource\fR {
+.br
+	...
+.br
+}
+.P
+If a domain does not list one or more sources, the default is:
+.sp
+\fBsource\fR {
+.br
+	\fBuri\fR = "file:///etc/passwd"
+.br
+}
+.br
+\fBsource\fR {
+.br
+	\fBuri\fR = "file:///etc/aliases"
+.br
+}
+.sp
+The following parameters may appear in a \fBsource\fR subsection:
+.IP "\fBenabled\fR = \fByes\fR|\fBno\fR"
+Enables/disables this particular source. Default: yes.
+.IP "\fBloader\fR = \fIloader_name_or_path\fR"
+Each source must specify a data loader: a module interfacing with the
+(possible remote) data provider. It is possible to specify a loader as
+an absolute path to a shared library, a relative (from the loader path
+directories) path or a name that will be used with the loader paths to
+build the shared library name.
+At the time of this writing, only two loaders are provided sendmail and ldap.
+The default is sendmail.
+.IP "\fBuri\fR = \fIdata_source_uri\fR"
+This parameter is passed to the loader to locate the target data. It
+should be given as an URI, but a particular handler may restrict
+its form (i.e.: a file URI for sendmail and an ldap/ldaps URI for ldap).
+Note about ldap URIs: the bind dn and password may be given in the
+authority part of the URI; selected attributes MUST be specified and contain
+e-mail addresses or recipient names. Default: "".
+.SH FILES
+/etc/undervest.conf.
+.SH AUTHORS
+Patrick Monnerat <pm@datasphere.ch>, DATASPHERE S.A.
+.SH "SEE ALSO"
+undervest(8)
