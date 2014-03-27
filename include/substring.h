@@ -61,7 +61,8 @@ public:
 	basic_substring&
 	assign(const value_type * s, size_type pos, size_type len)
 	{
-		return __assign_helper(s, pos, len, len);
+		return __assign_helper(s, pos, len,
+		    len == npos? npos: pos + len);
 	}
 
 	basic_substring&
@@ -89,7 +90,7 @@ public:
 
 	basic_substring(const value_type * s, size_type pos, size_type len)
 	{
-		__assign_helper(s, pos, len, len);
+		__assign_helper(s, pos, len, len == npos? npos: pos + len);
 	}
 
 	basic_substring(const basic_substring& s,

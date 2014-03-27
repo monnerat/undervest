@@ -9,6 +9,8 @@ Environment="UV_CONF=@SYSCONFDIR@/undervest.conf"
 EnvironmentFile=-@SYSCONFDIR@/sysconfig/undervest
 ExecStartPre=-/sbin/portrelease undervest
 ExecStart=@SBINDIR@/undervest -n -c "$UV_CONF" $UV_EXTRA_FLAGS "$UV_SOCKET"
+ExecReload=@BINDIR@/kill -USR1 ${MAINPID}
+ExecStop=@BINDIR@/kill -TERM ${MAINPID}
 StandardOutput=syslog
 StandardError=syslog
 

@@ -140,6 +140,7 @@ public:
 	schedule(TimedEvent te, const Time * t = NULL)
 	{
 		std::unique_lock<std::mutex> ulock(_exclude);
+		bool first;
 
 		if (te->_qued)
 			return true;				// Fails.
@@ -150,8 +151,12 @@ public:
 		if (t)
 			static_cast<Time&>(*te) = *t;
 
+		first = _queue.empty();
 		_queue.push(te);
-		_notEmpty.notify_one();
+
+		if (first)
+			_notEmpty.notify_one();
+
 		return false;
 	}
 
@@ -180,35 +185,41 @@ public:
 	{
 		Time curtime;
 		TimedEvent event;
+		std::unique_lock<std::mutex> ulock(_exclude);
 
 		for (_stop = false; !_stop;) {
-			{
-				std::unique_lock<std::mutex> ulock(_exclude);
-
-				while (!_stop && _queue.empty())
-					_notEmpty.wait(ulock);
-
-				while (!_stop) {
-					curtime = Clock::now();
-					event = _queue.top();
-
-					if (curtime >= *event)
-						break;
-
-					_notEmpty.wait_until(ulock, *event);
-					}
-
+			if (_queue.empty())
+				_notEmpty.wait(ulock);
+			else {
+				curtime = Clock::now();
 				event = _queue.top();
-				_queue.pop();
-				event->_qued = 0;
-			}
 
-			if (!_stop && !event->_cancelled)
-				event.run(*this);
+				if (curtime < *event)
+					_notEmpty.wait_until(ulock, *event);
+				else {
+					_queue.pop();
+					event->_qued = 0;
+
+					if (!event->_cancelled) {
+						ulock.unlock();
+						event.run(*this);
+						ulock.lock();
+						}
+					}
+				}
 			}
 	}
 
-	void stop() { _stop = true; _notEmpty.notify_one(); };
+	void stop()
+	{
+		_stop = true;
+
+		{
+			std::unique_lock<std::mutex> ulock(_exclude);
+
+			_notEmpty.notify_one();
+		}
+	}
 
 	void
 	clear()
