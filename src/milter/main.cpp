@@ -98,19 +98,21 @@ Globals::reload()
 		//	Read initial data.
 
 		for (auto it = newconf->domains.begin();
-		    it != newconf->domains.end(); it++)
+		    it != newconf->domains.end(); it++) {
+			auto dom((*it).second);
+
 			try {
-				(*it).second = (*it).second->refresh(newconf);
+				(*it).second = dom->refresh(dom, newconf);
 				}
 			catch (AlreadyLogged& e) {
 				}
 			catch (std::exception& e) {
-				(*it).second->log(e.what());
+				dom->log(e.what());
 				}
 			catch (...) {
-				(*it).second->log(
-				    "An unknown exception occurred");
+				dom->log("An unknown exception occurred");
 				}
+			}
 
 		conf = newconf;
 		}

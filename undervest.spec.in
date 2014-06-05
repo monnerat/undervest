@@ -143,5 +143,9 @@ fi
 %changelog
 #-------------------------------------------------------------------------------
 
+* Thu Jun  5 2014 Patrick Monnerat <pm@datasphere.ch> 0.1.2-1
+- Do not log crendentials in URI.
+- Implement a strategy for retries upon data load failure.
+
 * Tue Feb 25 2014 Patrick Monnerat <pm@datasphere.ch> 0.1.0-1
 - Initial rpm packaging.

@@ -19,6 +19,7 @@
 #define __INCLUDE_DOMAIN_H__
 
 #include <string>
+#include <vector>
 #include <list>
 #include <unordered_set>
 #include <memory>
@@ -67,7 +68,9 @@ public:
 	double			ngramThreshold;	// Positive lower probability.
 	double			wordThreshold;	// Positive lower probability.
 	unsigned int		refresh_sec;	// Refresh period (# sec).
-	unsigned short		disabled;	// 1->temporary, 2->permanent.
+	unsigned int		retry_sec;	// Continuous retry period.
+	std::vector<unsigned int> retries;	// Retry periods (# sec).
+	short			failure_count;	// Init to -1, -2 to disable.
 	unsigned short		ngram_size;	// n-gram size for domain.
 	bool			fixRecipient;	// Fix non-ambiguous recipient.
 
@@ -82,10 +85,12 @@ public:
 
 	virtual void	log(const std::string& msg, int level = LOG_ERR);
 
+	Domain&			assign(const Domain& s);
 	void			load_loaders();
 	void			load_data();
 	const std::string *	recipient(const std::string& s) const;
-	std::shared_ptr<Domain>	refresh(std::shared_ptr<Configuration> c);
+	std::shared_ptr<Domain>	refresh(std::shared_ptr<Domain> self,
+					std::shared_ptr<Configuration> c);
 };
 
 #endif

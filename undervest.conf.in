@@ -55,6 +55,14 @@
 #  Default: 0.
 #	refresh = 900
 #
+#  List of retry times in case of failure. Times are expressed in seconds
+#  relative to the initial failure. Default: {30, 300}.
+#	retries = {}
+#
+#  Continuous retry period after all listed retry time have been exhausted. Set
+#  to 0 to disable. Default: 3600.
+#	retry = 1800
+#
 #  The first fuzzy matching algorithm applied is based on overlapping text
 #  slices call n-grams. This parameter allows to specify the maximum slice
 #  length. Default is 3.

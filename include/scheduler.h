@@ -140,7 +140,6 @@ public:
 	schedule(TimedEvent te, const Time * t = NULL)
 	{
 		std::unique_lock<std::mutex> ulock(_exclude);
-		bool first;
 
 		if (te->_qued)
 			return true;				// Fails.
@@ -151,10 +150,9 @@ public:
 		if (t)
 			static_cast<Time&>(*te) = *t;
 
-		first = _queue.empty();
 		_queue.push(te);
 
-		if (first)
+		if (static_cast<Time>(*te) <= static_cast<Time>(*_queue.top()))
 			_notEmpty.notify_one();
 
 		return false;

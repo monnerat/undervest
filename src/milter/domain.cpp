@@ -77,36 +77,53 @@ Domain::Domain(Configuration * cp, const std::string& domname): Logger(cp)
 	name = domname;
 	ngramThreshold = 0.8;
 	wordThreshold = 0.5;
-	disabled = 1;
+	failure_count = -1;
 }
 
 
-Domain::Domain(const Domain& s): Logger(s.configuration)
+Domain&
+Domain::assign(const Domain& s)
 
 {
-	name = s.name;
-	sources = s.sources;
-	configuration = s.configuration;
-	ngramThreshold = s.ngramThreshold;
-	wordThreshold = s.wordThreshold;
-	refresh_sec = s.refresh_sec;
-	disabled = s.disabled;
-	ngram_size = s.ngram_size;
-	fixRecipient = s.fixRecipient;
-	ngram_match = NgramMatcher(ngram_size);
-	word_match = WordMatcher();
+	if (&s != this) {
+		Logger::operator=(s);
+		name = s.name;
+		sources = s.sources;
+		configuration = s.configuration;
+		ngramThreshold = s.ngramThreshold;
+		wordThreshold = s.wordThreshold;
+		refresh_sec = s.refresh_sec;
+		retry_sec = s.retry_sec;
+		retries = s.retries;
+		ngram_size = s.ngram_size;
+		fixRecipient = s.fixRecipient;
+		ngram_match = NgramMatcher(ngram_size);
+		word_match = WordMatcher();
+		failure_count = -1;
 
-	if (disabled != 2) {
-		disabled = 1;
-		recipients = s.recipients;
+		if (!s.failure_count) {
+			recipients = s.recipients;
 
-		for (auto i = recipients.begin(); i != recipients.end(); i++) {
-			ngram_match.add(*i);
-			word_match.add(*i);
+			for (auto i = recipients.begin();
+			    i != recipients.end(); i++) {
+				ngram_match.add(*i);
+				word_match.add(*i);
+				}
+
+			failure_count = 0;
 			}
-
-		disabled = 0;
+		else if (s.failure_count < -1)
+			failure_count = s.failure_count;
 		}
+
+	return *this;
+}
+
+
+Domain::Domain(const Domain& s)
+
+{
+	assign(s);
 }
 
 
@@ -122,35 +139,7 @@ Domain&
 Domain::operator=(const Domain& s)
 
 {
-	if (&s != this) {
-		Logger::operator=(s);
-		name = s.name;
-		sources = s.sources;
-		configuration = s.configuration;
-		ngramThreshold = s.ngramThreshold;
-		wordThreshold = s.wordThreshold;
-		refresh_sec = s.refresh_sec;
-		disabled = s.disabled;
-		ngram_size = s.ngram_size;
-		fixRecipient = s.fixRecipient;
-		ngram_match = NgramMatcher(ngram_size);
-		word_match = WordMatcher();
-
-		if (disabled != 2) {
-			disabled = 1;
-			recipients = s.recipients;
-
-			for (auto i = recipients.begin();
-			    i != recipients.end(); i++) {
-				ngram_match.add(*i);
-				word_match.add(*i);
-				}
-
-			disabled = 0;
-			}
-		}
-
-	return *this;
+	return assign(s);
 }
 
 
@@ -171,8 +160,8 @@ Domain::log(const std::string& msg, int level)
 {
 	if (!name.length())
 		up->log(msg, level);
-
-	up->log("domain: " + name + ", " + msg, level);
+	else
+		up->log("domain: " + name + ", " + msg, level);
 }
 
 
@@ -185,7 +174,7 @@ Domain::load_loaders()
 			(*i).load_loader();
 			}
 		catch (...) {
-			disabled = 2;
+			failure_count = -2;	// Disable.
 			throw;
 			}
 
@@ -198,15 +187,9 @@ void
 Domain::load_data()
 
 {
-	if (disabled != 2) {
+	if (failure_count != -2) {
 		for (auto i = sources.begin(); i != sources.end(); i++)
-			try {
-				(*i).load_data();
-				}
-			catch (...) {
-				disabled = 1;
-				throw;
-				}
+			(*i).load_data();
 
 		ngram_match = NgramMatcher(ngram_size);
 		word_match = WordMatcher();
@@ -216,7 +199,7 @@ Domain::load_data()
 			word_match.add(*i);
 			}
 
-		disabled = 0;
+		failure_count = 0;
 		}
 }
 
@@ -227,7 +210,7 @@ Domain::recipient(const std::string& s) const
 {
 	std::vector<Matcher::result> results;
 
-	if (disabled)
+	if (failure_count)
 		return &s;
 
 	ngram_match.match(results, s);
@@ -267,7 +250,7 @@ domainRefresher(Globals * g, std::shared_ptr<Configuration> c,
 		return;			// Do not refresh if outdated.
 
 	try {
-		(*domit).second = d->refresh(c);
+		(*domit).second = d->refresh(d, c);
 		}
 	catch (AlreadyLogged& e) {
 		;
@@ -282,12 +265,14 @@ domainRefresher(Globals * g, std::shared_ptr<Configuration> c,
 
 
 std::shared_ptr<Domain>
-Domain::refresh(std::shared_ptr<Configuration> c)
+Domain::refresh(std::shared_ptr<Domain> self, std::shared_ptr<Configuration> c)
 
 {
+	unsigned int nxttime;
+	unsigned short cnt;
 	std::shared_ptr<Domain> d;
 
-	if (disabled == 2)
+	if (failure_count == -2)
 		throw AlreadyLogged();
 
 	if (c->glob->debuglvl > 1)
@@ -304,16 +289,39 @@ Domain::refresh(std::shared_ptr<Configuration> c)
 	d->ngramThreshold = ngramThreshold;
 	d->wordThreshold = wordThreshold;
 	d->refresh_sec = refresh_sec;
+	d->retry_sec = retry_sec;
+	d->retries = retries;
+	d->failure_count = failure_count;
 	d->ngram_size = ngram_size;
 	d->fixRecipient = fixRecipient;
 
 	//	Load address data.
 
-	d->load_data();
+	nxttime = d->refresh_sec;
+
+	try {
+		d->load_data();
+		}
+	catch (...) {
+		nxttime = retry_sec;
+		cnt = failure_count < 0? 0: failure_count;
+
+		if (cnt < retries.size())
+			nxttime = retries[cnt];
+
+		failure_count = cnt + 1;
+
+		if (nxttime)
+			c->glob->sched.schedule(
+			    Scheduler::TimedEvent(std::chrono::seconds(nxttime),
+			    domainRefresher, c->glob, c, self));
+
+		throw;
+		}
 
 	if (d->refresh_sec)
 		c->glob->sched.schedule(
-		    Scheduler::TimedEvent(std::chrono::seconds(d->refresh_sec),
+		    Scheduler::TimedEvent(std::chrono::seconds(nxttime),
 		    domainRefresher, c->glob, c, d));
 
 	return d;

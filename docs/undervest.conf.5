@@ -79,6 +79,13 @@ regard of the thresholds. Default: no.
 .IP "\fBrefresh\fR = \fIseconds\fR"
 Refreshes domain data every \fIseconds\fR. If 0, data are never refreshed.
 Default: 0.
+.IP "\fBretries\fR = {\fIseconds\fR ...}"
+After a data loading failure, wait for \fIseconds\fR before retry. Periods are
+expressed relative to the initial failure and thus may appear in any order.
+An empty list \fB{}\fR may be specified. Default: {30, 300}.
+.IP "\fBretry\fR = \fIseconds\fR"
+Retry period to apply after all periods from the \fBretries\fR list are
+exhausted. Set to 0 to disable retry. Default: 3600.
 .IP "\fBn-gram\fR = \fIn-gram_size\fR"
 The first fuzzy matching algorithm applied is based on overlapping text
 slices call n-grams. This parameter allows specifying the maximum slice

@@ -22,6 +22,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 #include <memory>
 #include <cerrno>
 #include <stdexcept>
@@ -79,6 +80,8 @@ static cfg_opt_t	domain_opts[] = {
 	CFG_BOOL((char *) "enabled", cfg_true, CFGF_NONE),
 	CFG_BOOL((char *) "autofix", cfg_false, CFGF_NONE),
 	CFG_INT((char *) "refresh", 0, CFGF_NONE),
+	CFG_INT((char *) "retry", 3600, CFGF_NONE),
+	CFG_INT_LIST((char *) "retries", (char *) "{30, 300}", CFGF_NONE),
 	CFG_INT((char *) "n-gram", 3, CFGF_NONE),
 	CFG_SEC((char *) "thresholds", thresholds_opts, CFGF_NONE),
 	CFG_SEC((char *) "source", source_opts, CFGF_MULTI),
@@ -276,12 +279,42 @@ Configuration::get(const std::string& configfile)
 			    cfg_title(domain_cfg));
 			dp->ngram_size = cfg_getint(domain_cfg, "n-gram");
 			dp->refresh_sec = cfg_getint(domain_cfg, "refresh");
+			dp->retry_sec = cfg_getint(domain_cfg, "retry");
 			dp->fixRecipient = cfg_getbool(domain_cfg, "autofix");
 			threshold_cfg = cfg_getsec(domain_cfg, "thresholds");
 			dp->ngramThreshold =
 			    cfg_getfloat(threshold_cfg, "n-gram");
 			dp->wordThreshold =
 			    cfg_getfloat(threshold_cfg, "word");
+
+			//	Get initial retry periods.
+
+			m = cfg_size(domain_cfg, "retries");
+			dp->retries.reserve(m);
+
+			for (j = 0; j < m; j++) {
+				int k = cfg_getnint(domain_cfg, "retries", j);
+
+				if (k <= 0)
+					dp->log("non-positive retry period "
+					    "ignored");
+				else
+					dp->retries.push_back(k);
+				}
+
+			std::sort(dp->retries.begin(), dp->retries.end());
+
+			if (m > 1) {
+				//	Convert times from failure to relative.
+
+				auto t(dp->retries.end() - 1);
+
+				for (auto f(t); f != dp->retries.begin(); f--)
+					if ((*t = *f - f[-1]))
+						t--;
+
+				dp->retries.erase(dp->retries.begin() + 1, ++t);
+				}
 
 			//	Get data sources for that domain.
 

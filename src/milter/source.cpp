@@ -25,6 +25,7 @@
 #include "source.h"
 #include "domain.h"
 #include "configuration.h"
+#include "uri.h"
 #include "stringlib.h"
 #include "support11.h"
 
@@ -105,8 +106,16 @@ Source::log(const std::string& msg, int level)
 {
 	if (!uri.length())
 		up->log(msg, level);
+	else {
+		URI u(uri);
 
-	up->log("URI: " + uri + ", " + msg, level);
+		//	Do not log user info.
+
+		if (!u.userinfo().empty())
+			u.userinfo("***");
+
+		up->log("URI: " + (std::string) u + ", " + msg, level);
+		}
 }
 
 
