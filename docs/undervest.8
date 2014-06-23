@@ -139,6 +139,22 @@ sendmail. See sendmail documentation for the socket's name syntax.
 .P
 Note that a subset of these options can be tuned for invocation by the system in
 /etc/sysconfig/undervest.
+.SH SYSTEM START-UP
+The LDAP loader is a network client that needs the network to be really up
+(i.e.: IP addresses established) to function properly: this might not be the
+case when the milter is started at system boot time. The \fBretries\fR and
+\fBretry\fR configuration options of \fBdomain\fR sections can help in this
+situation.
+.P
+There is however an external facility with the \fBsystemd\fR service manager:
+a special service can be enabled to delay network-aware services after the
+network is online.
+On Fedora 20, the service is called \fBNetworkManager-wait-online\fR if the
+network is under NetworkManager control. Other distributions may include
+alternate services such as \fBsystemd-networkd-wait-online\fR to be used
+for alternate network managers. Enabling such a service causes undervest
+to start after the network is really up, thus avoiding the LDAP client to
+fail on first try; it however slightly slows down the system boot.
 .SH FILES
 /etc/undervest.conf, /etc/sysconfig/undervest.
 .SH AUTHORS
