@@ -33,7 +33,7 @@ findtool()
 	do	IFS=$old_IFS
 		# echo "checks for $file in $path" >&2
 
-		if test -f "$path/$file"
+		if test "$path" -a "$path" != '.' -a -f "$path/$file"
 		then	echo "$path/$file"
 			return
 		fi
