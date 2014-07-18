@@ -42,7 +42,7 @@
 # if the sendmail configuration file defines LUSER_RELAY to some valid
 # address intended to receive all mail sent to an unknown recipient.
 # the filter will divert this handling whenever possible.
-# 
+#
 #domain example.com {
 #  Enables/disables handling of this domain. Default: true
 #	enabled = no

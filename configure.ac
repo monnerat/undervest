@@ -9,6 +9,24 @@ dnl              *                                           *
 dnl              *  - Project configuration directives.      *
 dnl              *                                           *
 dnl              *-------------------------------------------*
+dnl              *                                           *
+dnl              * Copyright (c) 2014 Datasphere S.A.        *
+dnl              *                                           *
+dnl              *   This software is licensed as described  *
+dnl              * in the file LICENSE, which you should     *
+dnl              * have received as part of this             *
+dnl              * distribution.                             *
+dnl              *   You may opt to use, copy, modify,       *
+dnl              * merge, publish, distribute and/or sell    *
+dnl              * copies of this software, and permit       *
+dnl              * persons to whom this software is          *
+dnl              * furnished to do so, under the terms of    *
+dnl              * the LICENSE file.                         *
+dnl              *   This software is distributed on an      *
+dnl              * "AS IS" basis, WITHOUT WARRANTY OF ANY    *
+dnl              * KIND, either express or implied.          *
+dnl              *                                           *
+dnl              *-------------------------------------------*
 dnl              * CREATION                                  *
 dnl              *   P. MONNERAT                  26/02/2014 *
 dnl              *--------------.oooO-----Oooo.--------------*
