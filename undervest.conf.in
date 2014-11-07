@@ -102,7 +102,7 @@
 #		loader = ldap
 #
 #   This parameter is passed to the loader to locate the target data. It
-#   should be given as an URI, but a particular handler may restrict
+#   should be given as an URI, but a particular loader may restrict
 #   its form (i.e.: a file URI for sendmail and an ldap/ldaps URI for ldap).
 #   Note about ldap URIs: the bind dn and password may be given in the
 #   authority part of the URI; selected attributes MUST be specified and contain
@@ -143,11 +143,11 @@
 #	autofix = yes
 #	refresh = 900
 #	source {
-#		handler = ldap
-#		uri = 'ldap://ldapuser%40example.com:password@adc.example.com/dc=example,dc=com?proxyAddresses?sub?(proxyAddresses=smtp*)'
+#		loader = ldap
+#		uri = 'ldap://ldapuser%40example.com:password@ads.example.com/dc=example,dc=com?proxyAddresses?sub?(proxyAddresses=smtp*)'
 #	}
 #	source {
-#		handler = ldap
-#		uri = 'ldap://ldapuser%40example.com:password@adc.example.com/dc=example,dc=com?mail?sub?(mail=*)'
+#		loader = ldap
+#		uri = 'ldap://ldapuser%40example.com:password@ads.example.com/dc=example,dc=com?mail?sub?(mail=*)'
 #	}
 #}

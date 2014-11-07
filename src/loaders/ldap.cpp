@@ -147,7 +147,7 @@ openSource(Source * source)
 	struct timeval tv;
 
 	if (!source->uri.length())
-		throw std::runtime_error("LDAP handler requires an LDAP URI");
+		throw std::runtime_error("LDAP loader requires an LDAP URI");
 
 	//	Create the handle.
 
@@ -182,10 +182,11 @@ openSource(Source * source)
 
 		//	Connect to LDAP server.
 
-		rc = ldap_initialize(&h->ldap,
-		    (std::string(h->uri->lud_scheme) +
-		    "://" + h->uri->lud_host + ":" +
-		    std::to_string(h->uri->lud_port)).c_str());
+		rc = ldap_initialize(&h->ldap, ((std::string(h->uri->lud_scheme?
+		    h->uri->lud_scheme: "ldap")) + "://" +
+		    (h->uri->lud_host? h->uri->lud_host: "") +
+		    (h->uri->lud_port? ":" +
+		    std::to_string(h->uri->lud_port): "")).c_str());
 
 		if (rc != LDAP_SUCCESS)
 			throw ldap_error(rc);

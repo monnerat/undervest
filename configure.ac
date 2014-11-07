@@ -35,7 +35,7 @@ dnl*****************************************************************************
 
 dnl	Process this file with autoconf to produce a configure script.
 
-AC_INIT([undervest], [0.1.2])
+AC_INIT([undervest], [0.1.3])
 AC_CONFIG_SRCDIR(src/milter/undervest.cpp)
 AM_INIT_AUTOMAKE
 
@@ -129,7 +129,7 @@ dnl	Check for openldap library.
 AC_CHECK_LIB(ldap, ldap_initialize)
 
 
-dnl	Package library subdirectory for handlers.
+dnl	Package library subdirectory for loaders.
 
 CFLAGS="${CFLAGS} -DHANDLERDIR=\\\"\${pkglibdir}\\\""
 

@@ -64,7 +64,7 @@ openSource(Source * source)
 	if (!s.length() ||
 	    (!u.scheme().empty() && strtolower(u.scheme()) != "file"))
 		throw std::runtime_error(
-		    "Sendmail handler requires a file URI");
+		    "Sendmail loader requires a file URI");
 
 	return (void *) new sm_handle(s);
 }
