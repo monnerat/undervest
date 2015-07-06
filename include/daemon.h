@@ -358,8 +358,8 @@ public:
 				if (fd > ::fileno(stderr))
 					::close(fd);
 
-			break;
-			}
+				break;
+				}
 	}
 
 	bool
