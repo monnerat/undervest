@@ -11,7 +11,7 @@
 //               *                                           *
 //               *-------------------------------------------*
 //               *                                           *
-//               * Copyright (c) 2014 Datasphere S.A.        *
+//               * Copyright (c) 2014-2015 Datasphere S.A.   *
 //               *                                           *
 //               *   This software is licensed as described  *
 //               * in the file LICENSE, which you should     *

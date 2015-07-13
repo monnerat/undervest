@@ -10,7 +10,7 @@ dnl              *  - Project configuration directives.      *
 dnl              *                                           *
 dnl              *-------------------------------------------*
 dnl              *                                           *
-dnl              * Copyright (c) 2014 Datasphere S.A.        *
+dnl              * Copyright (c) 2014-2015 Datasphere S.A.   *
 dnl              *                                           *
 dnl              *   This software is licensed as described  *
 dnl              * in the file LICENSE, which you should     *
@@ -35,7 +35,7 @@ dnl*****************************************************************************
 
 dnl	Process this file with autoconf to produce a configure script.
 
-AC_INIT([undervest], [0.1.3])
+AC_INIT([undervest], [0.1.4])
 AC_CONFIG_SRCDIR(src/milter/undervest.cpp)
 AM_INIT_AUTOMAKE
 
