@@ -1,0 +1,56 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+
+# Autotools
+Makefile
+Makefile.in
+aclocal.m4
+aclocal.m4.bak
+autom4te.cache
+config.cache
+config.guess
+config.log
+config.status
+config.sub
+configure
+depcomp
+libtool
+ltmain.sh
+missing
+mkinstalldirs
+install-sh
+.deps
+
+# Project-specific
+undervest-*.tar.gz
+undervest.spec

@@ -7,7 +7,7 @@ Name:		undervest
 Summary:	Recipient fuzzy matcher/fixer filter for sendmail
 Version:	@VERSION@
 Release:	1%{?dist}
-URL:		http://www.datasphere.ch/
+URL:		https://github.com/monnerat/undervest
 Source:		%{name}-%{version}.tar.gz
 License:	MIT
 Group:		System Environment/Daemons
@@ -142,6 +142,10 @@ fi
 #-------------------------------------------------------------------------------
 %changelog
 #-------------------------------------------------------------------------------
+
+* Thu Oct 15 2015 Patrick Monnerat <patrick.monnerat@dh.com> 0.1.5-1
+- Copyright is now held by D+H.
+- Move to github.
 
 * Mon Jul 13 2015 Patrick Monnerat <pm@datasphere.ch> 0.1.4-1
 - Fix bug in daemon::unblock_signals().

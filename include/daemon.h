@@ -1,8 +1,6 @@
 //                                   \|||/
 //                                  { o o }
 //               *------------.oOO-----U-----OOo.------------*
-//               *       D A T A S P H E R E   S . A .       *
-//               *-------------------------------------------*
 //               *                                           *
 //               *                 UNDERVEST                 *
 //               *                                           *
@@ -11,6 +9,7 @@
 //               *-------------------------------------------*
 //               *                                           *
 //               * Copyright (c) 2014-2015 Datasphere S.A.   *
+//               * Copyright (c) 2015 D+H                    *
 //               *                                           *
 //               *   This software is licensed as described  *
 //               * in the file LICENSE, which you should     *
