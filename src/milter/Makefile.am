@@ -45,3 +45,4 @@ undervest_SOURCES =	source.cpp					\
 			main.cpp
 
 undervest_LDFLAGS =	-export-dynamic
+undervest_LDADD  =	$(LIBADD_DLOPEN)

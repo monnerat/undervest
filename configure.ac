@@ -34,7 +34,7 @@ dnl*****************************************************************************
 
 dnl	Process this file with autoconf to produce a configure script.
 
-AC_INIT([undervest], [0.1.5])
+AC_INIT([undervest], [0.1.6])
 AC_CONFIG_SRCDIR(src/milter/undervest.cpp)
 AM_INIT_AUTOMAKE
 
@@ -46,7 +46,6 @@ dnl	Checks for programs.
 
 AC_LANG([C++])
 AC_PROG_CXX
-CFLAGS="-O0"
 AX_CXX_COMPILE_STDCXX_11
 AC_PROG_INSTALL
 AC_PROG_LN_S
