@@ -714,7 +714,7 @@ private:
 			if (pos > ssize)
 				pos = ssize;
 
-			if (len == npos || len > ssize - pos);
+			if (len == npos || len > ssize - pos)
 				len = ssize - pos;
 
 			_M_length = len;
