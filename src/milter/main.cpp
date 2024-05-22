@@ -269,8 +269,8 @@ Globals::run(int argc, char * * argv)
 
 	try {
 		daemon.program(name());
-		daemon.lock_file(FilePath(LOCKDIR) + daemon.program());
-		daemon.pid_file(FilePath(RUNDIR) + (daemon.program() + ".pid"));
+		daemon.lock_file(name());
+		daemon.pid_file(name() + ".pid");
 		daemon.user(user);
 		daemon.group(group);
 		daemon.log_to_stderr(logstd);

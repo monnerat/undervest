@@ -55,6 +55,14 @@
 
 #include "filepath.h"
 
+#ifndef RUNDIR
+#define RUNDIR	"/var/run"
+#endif
+
+#ifndef LOCKDIR
+#define LOCKDIR	"/var/run/subsys"
+#endif
+
 
 class Daemon {
 
@@ -261,7 +269,7 @@ public:
 		    lockfile.find("/") != std::string::npos)
 			_lock_file = lockfile;
 		else
-			_lock_file = "/var/lock/subsys/" + lockfile;
+			_lock_file = FilePath(LOCKDIR) + lockfile;
 
 		return old;
 	}
@@ -277,7 +285,7 @@ public:
 		    pidfile.find("/") != std::string::npos)
 			_pid_file = pidfile;
 		else
-			_pid_file = "/var/run/" + pidfile;
+			_pid_file = FilePath(RUNDIR) + pidfile;
 
 		return old;
 	}

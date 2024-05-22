@@ -34,7 +34,7 @@ dnl*****************************************************************************
 
 dnl	Process this file with autoconf to produce a configure script.
 
-AC_INIT([undervest], [0.1.7])
+AC_INIT([undervest], [0.1.8])
 AC_CONFIG_SRCDIR(src/milter/undervest.cpp)
 AC_CONFIG_MACRO_DIRS([m4])
 AM_INIT_AUTOMAKE

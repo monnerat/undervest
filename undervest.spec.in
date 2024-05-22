@@ -1,7 +1,10 @@
 %global use_systemd	0
-%if 0%{?fedora} >= 16
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 8
 %global use_systemd	1
 %endif
+
+%{!?_rundir: %global _rundir	/%{_localstatedir}/run}
+%global _lockdir %(echo '%{_rundir}' | cut -d/ -f1-2)/lock/subsys
 
 Name:		undervest
 Summary:	Recipient fuzzy matcher/fixer filter for sendmail
@@ -42,7 +45,7 @@ redispatch the mail. If no address can be approximated, it is rejected.
 %build
 #-------------------------------------------------------------------------------
 
-%configure
+%configure --with-rundir='%{_rundir}' --with-lockdir='%{_lockdir}'
 make %{?_smp_mflags}
 
 
@@ -143,6 +146,11 @@ fi
 #-------------------------------------------------------------------------------
 %changelog
 #-------------------------------------------------------------------------------
+
+* Wed May 22 2024 Patrick Monnerat <patrick@monnerat.net> 0.1.8-1
+- New release.
+- Support for lockdir and rundir in rpm spec.
+- Check for systemd in rhel.
 
 * Sun Jan 20 2019 Patrick Monnerat <patrick@monnerat.net> 0.1.7-1
 - New release.
