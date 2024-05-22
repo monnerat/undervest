@@ -98,7 +98,7 @@ Globals::reload()
 {
 	std::shared_ptr<Configuration> newconf;
 	std::shared_ptr<Configuration> saveconf(conf);
-	Logger * l(&*saveconf);
+	Logger * l(saveconf.get());
 
 	//	Reload the configuration file and domain data.
 

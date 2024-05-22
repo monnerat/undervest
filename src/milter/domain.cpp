@@ -297,11 +297,11 @@ Domain::refresh(std::shared_ptr<Domain> self, std::shared_ptr<Configuration> c)
 
 	//	Clone domain's configuration.
 
-	d = std::make_shared<Domain>(&*c, name);
+	d = std::make_shared<Domain>(c.get(), name);
 	d->sources = sources;
 
 	for (auto i = d->sources.begin(); i != d->sources.end(); i++)
-		(*i).setParent(&*d);
+		(*i).setParent(d.get());
 
 	d->ngramThreshold = ngramThreshold;
 	d->wordThreshold = wordThreshold;
