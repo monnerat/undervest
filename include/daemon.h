@@ -61,7 +61,7 @@ class Daemon {
 public:
 	//	Field getters/setters.
 
-	std::string program() const { return _program; }
+	const std::string& program() const { return _program; }
 
 	std::string
 	program(const std::string& path)
@@ -83,7 +83,7 @@ public:
 		return old;
 	}
 
-	std::string group() const { return _group; };
+	const std::string& group() const { return _group; };
 	const ::gid_t& gid() const { return _gid; };
 
 	std::string
@@ -152,7 +152,7 @@ public:
 		return old;
 	}
 
-	std::string user() const { return _user; };
+	const std::string& user() const { return _user; };
 	const ::uid_t& uid() const { return _uid; };
 
 	std::string
@@ -224,7 +224,7 @@ public:
 		return old;
 	}
 
-	std::string home() const { return _home; };
+	const std::string& home() const { return _home; };
 
 	std::string
 	home(const std::string& homedir)
@@ -235,7 +235,7 @@ public:
 		return old;
 	}
 
-	std::string jail() const { return _jail; };
+	const std::string& jail() const { return _jail; };
 
 	std::string
 	jail(const std::string& newfsroot)
@@ -250,7 +250,7 @@ public:
 		return old;
 	}
 
-	std::string lock_file() const { return _lock_file; };
+	const std::string& lock_file() const { return _lock_file; };
 
 	std::string
 	lock_file(const std::string& lockfile)
@@ -266,7 +266,7 @@ public:
 		return old;
 	}
 
-	std::string pid_file() const { return _pid_file; };
+	const std::string& pid_file() const { return _pid_file; };
 
 	std::string
 	pid_file(const std::string& pidfile)
