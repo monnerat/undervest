@@ -25,11 +25,11 @@ Note: To satisfy your own curiosity, the "undervest" name has been chosen after
 the guy who did this job manually, named Marcel...
 
 
-How to build an installation tarball from a git clone.
+How to build an distribution tarball from a git clone.
 
 1. $ git clone https://github.com/monnerat/undervest.git
 2. $ cd undervest
-3. $ ./buildconf
+3. $ autoreconf -fi
 4. $ ./configure --prefix=/usr
 5. $ make dist
 

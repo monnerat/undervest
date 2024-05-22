@@ -36,6 +36,7 @@ dnl	Process this file with autoconf to produce a configure script.
 
 AC_INIT([undervest], [0.1.7])
 AC_CONFIG_SRCDIR(src/milter/undervest.cpp)
+AC_CONFIG_MACRO_DIRS([m4])
 AM_INIT_AUTOMAKE
 
 dnl	Disable building of static libraries.
@@ -60,7 +61,6 @@ LT_LIB_DLLOAD
 
 dnl	Checks for header files.
 
-AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h sys/file.h syslog.h unistd.h ldap.h)
 
 

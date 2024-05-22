@@ -33,6 +33,7 @@
 #*******************************************************************************
 
 AUTOMAKE_OPTIONS =	foreign
+ACLOCAL_AMFLAGS	=	-I m4
 
 SUFFIXES	=	.conf .conf.in .service .service.in .init .init.in
 
